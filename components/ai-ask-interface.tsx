@@ -33,7 +33,7 @@ const formatOutput = (output: string) => {
     });
 };
 
-export function AiAskInterface({ onResponse, isLoading, setIsLoading, generateText, output }: AiAskInterfaceProps) {
+export function AiAskInterface({ onResponse, isLoading, generateText, output }: AiAskInterfaceProps) {
   const [input, setInput] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
