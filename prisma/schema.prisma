@@ -1,0 +1,107 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Guru {
+  id        String      @id @default(uuid()) @db.Uuid
+  username  String      @unique 
+  name      String   
+  email     String      @unique
+  password  String   
+  kelasAjar KelasAjar[] @relation("GuruKelasAjar") // Relasi satu ke banyak
+}
+
+model Murid {
+  id        String      @id @default(uuid()) @db.Uuid
+  username  String      @unique
+  name      String   
+  email     String      @unique
+  password  String   
+  pengambilanKelas PengambilanKelas[] @relation("MuridPengambilanKelas") // Relasi satu ke banyak
+  UjianAttempt     UjianAttempt[] @relation("MuridUjianAttempt") // Relasi ke attempt ujian
+}
+
+model Kelas {
+  id          String     @id @default(uuid()) @db.Uuid
+  classCode   String     @unique  // Kode unik untuk kelas, seperti IPA7A-2024
+  className   String     // Nama kelas, misalnya "IPA"
+  grade       String     // Grade, misalnya "7", "8", dll.
+  tahunAjaran String     // Tahun ajaran, misalnya "2024/2025"
+  kelasAjar   KelasAjar[] @relation("KelasKelasAjar") // Relasi ke KelasAjar
+  pengambilanKelas PengambilanKelas[] @relation("KelasPengambilanKelas") // Relasi ke PengambilanKelas
+  Ujian       Ujian[] @relation("KelasUjian")
+}
+
+model KelasAjar {
+  id            String      @id @default(uuid()) @db.Uuid
+  idKelas       String      @db.Uuid// Referensi ke Kelas
+  idGuru        String      @db.Uuid// Referensi ke Guru
+  EducationYear String      // Tahun ajaran
+  status        StatusKelas      
+  kelas         Kelas       @relation("KelasKelasAjar", fields: [idKelas], references: [id])
+  guru          Guru        @relation("GuruKelasAjar", fields: [idGuru], references: [id])
+}
+
+model PengambilanKelas {
+  id            String      @id @default(uuid()) @db.Uuid
+  idKelas       String      @db.Uuid// Referensi ke KelasAjar
+  idMurid       String      @db.Uuid// Referensi ke Murid
+  Kelas         Kelas       @relation("KelasPengambilanKelas", fields: [idKelas], references: [id])
+  murid         Murid       @relation("MuridPengambilanKelas", fields: [idMurid], references: [id])
+}
+
+model Ujian {
+  id               String     @id @default(uuid()) @db.Uuid
+  idSesiPercakapan String
+  idKelas          String     @db.Uuid// Referensi ke KelasAjar
+  name             String
+  startDate        DateTime   // Tanggal mulai ujian
+  endDate          DateTime   // Tanggal selesai ujian
+  kelas            Kelas  @relation("KelasUjian", fields: [idKelas], references: [id])
+  UjianAttempt     UjianAttempt[] @relation("UjianAttempt") // Relasi ke attempt ujian
+  sesiPercakapan   SesiPercakapanChatGPT? // Relasi ke satu sesi percakapan
+  status           StatusUjian
+}
+
+model UjianAttempt {
+  id               String     @id @default(uuid()) @db.Uuid
+  idUjian          String     @db.Uuid// ID ujian yang diambil
+  idMurid          String     @db.Uuid// ID murid yang mengerjakan ujian
+  score            Float      // Skor yang diperoleh oleh murid dalam attempt ini
+  attemptCount     Int        // Nomor percakapan (contoh: 1 untuk percakapan pertama)
+  waktuAttempt     DateTime   // Waktu ketika attempt dikerjakan
+  ujian            Ujian      @relation("UjianAttempt", fields: [idUjian], references: [id])
+  murid            Murid      @relation("MuridUjianAttempt", fields: [idMurid], references: [id])
+}
+
+model SesiPercakapanChatGPT {
+  id              String     @id @default(uuid()) @db.Uuid
+  idUjian         String     @db.Uuid @unique// ID ujian yang terkait @unique
+  configuration     Json       // Konfigurasi yang diberikan guru untuk ChatGPT (materi, jenis soal, dsb.)
+  roomChatId  String     // ID percakapan atau "room" yang digunakan untuk seluruh ujian
+  dateCreate      DateTime   
+  dateEdit        DateTime?  
+  ujian           Ujian      @relation(fields: [idUjian], references: [id])
+}
+
+enum StatusKelas {
+  ACTIVE
+  END
+}
+
+enum StatusUjian {
+  DRAFT
+  ACTIVE
+  END
+}

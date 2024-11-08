@@ -3,19 +3,68 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-text-base: theme(colors.gray.950);
+  --color-text-muted: theme(colors.gray.500);
+  --color-text-inverted: theme(colors.gray.50);
+  --color-text-accent: theme(colors.indigo.700);
+
+  --color-secondary: theme(colors.indigo.100);
+  --color-fill: #fff;
+
+  --color-button-primary: theme(colors.indigo.700);
+  --color-button-primary-hover: theme(colors.indigo.800);
+  --color-button-secondary: theme(colors.gray.50);
+  --color-button-secondary-hover : theme(colors.gray.200);
+
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+
   }
 }
 
-body {
+/* body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+} */
+
+main {
+  /* padding: 16px; */
+}
+
+html, body {
+  height: 100%; /* Set height to 100% for full viewport */
+  margin: 0; /* Remove default margin */
+  /* padding: 16px; Add desired padding */
+  box-sizing: border-box; /* Ensure padding is included in total height */
+}
+
+body {
+  @apply font-sans;
+}
+
+/* For WebKit browsers (Chrome, Safari) */
+::-webkit-scrollbar {
+  width: 12px; /* width of the scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* background of the scrollbar track */
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-button-primary); /* color of the scrollbar thumb */
+  border-radius: 10px; /* rounded corners for the thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-button-primary-hover); /* color of the thumb on hover */
+}
+
+/* For Firefox */
+.scrollable {
+  scrollbar-width: thin; /* "auto" or "thin" */
+  scrollbar-color: var(--color-button-primary) #f1f1f1; /* thumb and track color */
 }
